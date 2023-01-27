@@ -43,6 +43,7 @@ namespace Erase
                 transform.position = _camera.ScreenToWorldPoint(Input.mousePosition);
                 eraserView.ToggleView(true);
                 _dragData.dragPoints.Enqueue(_camera.ScreenToWorldPoint(Input.mousePosition));
+                _dragData.prevPoint = transform.position;
             } 
             else
             if (Input.GetMouseButtonUp(0))
@@ -62,26 +63,21 @@ namespace Erase
                 if (_dragData.previousMousePosition != _dragData.currentMousePosition)
                     _dragData.dragPoints.Enqueue(_camera.ScreenToWorldPoint(Input.mousePosition));
             }
-            else
-            {
-                _dragData.prevPoint = _camera.ScreenToWorldPoint(Input.mousePosition);
-            }
         }
 
         private void MoveEraserAndFindErasable()
         {
-            transform.position = Vector2.Lerp(transform.position, _dragData.dragPoints.Peek(), 0.9f);
+            transform.position = Vector2.Lerp(transform.position, _dragData.dragPoints.Peek(), 0.9f); 
+            FindErasableBetweenPoints(_dragData.prevPoint,transform.position);
+            
             if (Vector2.Distance(_dragData.dragPoints.Peek(), transform.position) < 0.1f)
             {
-                FindErasableBetweenPoints(_dragData.prevPoint,transform.position);
                 _dragData.prevPoint = _dragData.dragPoints.Dequeue();
             }
             else
             {
-                FindErasableBetweenPoints(_dragData.prevPoint,transform.position);
                 _dragData.prevPoint = transform.position;
             }
-            
         }
 
         private void FindErasableBetweenPoints(Vector2 prevPos, Vector2 currentPos)
